@@ -5,6 +5,17 @@ import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
+
+const slb = new SimpleLightbox('.gallery a', {
+  captionType: 'attr',
+  captionsData: 'alt',
+  captionPosition: 'bottom',
+  captionDelay: 250,
+  enableKeyboard: true,
+  docClose: true,
+  scaleImageToRatio: true,
+});
+
 const refs = {
   searchForm: document.querySelector('.search-form'),
   inputEl: document.querySelector('input'),
@@ -27,7 +38,7 @@ function fetchUrl() {
 async function onFormSubmit(event) {
   event.preventDefault();
   try {
-    if (refs.inputEl.value === '' || refs.inputEl.value === ' ') {
+    if (refs.inputEl.value.trim() === '') {
       clearGallery();
       refs.loadMoreBtnEl.classList.add('visually-hidden');
       Notiflix.Notify.info(
@@ -48,15 +59,7 @@ async function onFormSubmit(event) {
           renderPhotoCard(response.data.hits)
         );
 
-        new SimpleLightbox('.gallery a', {
-          captionType: 'attr',
-          captionsData: 'alt',
-          captionPosition: 'bottom',
-          captionDelay: 250,
-          enableKeyboard: true,
-          docClose: true,
-          scaleImageToRatio: true,
-        });
+        slb.refresh();
 
         if (response.data.totalHits > photosPerPage) {
           refs.loadMoreBtnEl.classList.remove('visually-hidden');
@@ -84,9 +87,9 @@ function onLoadMore(event) {
 function clearGallery() {
   refs.galleryEl.innerHTML = '';
 }
-//---
+
 function onInputClear() {
-  if (refs.inputEl.value == '' || refs.inputEl.value.length == 1) {
+  if (refs.inputEl.value == '' || refs.inputEl.value.length == 0) {
     clearGallery();
     refs.loadMoreBtnEl.classList.add('visually-hidden');
     pageNum = 1;
