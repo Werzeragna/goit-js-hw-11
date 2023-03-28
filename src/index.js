@@ -5,7 +5,6 @@ import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-
 const slb = new SimpleLightbox('.gallery a', {
   captionType: 'attr',
   captionsData: 'alt',
@@ -24,12 +23,13 @@ const refs = {
 };
 
 refs.searchForm.addEventListener('submit', onFormSubmit);
-refs.galleryEl.addEventListener('click', onImageClick);
 refs.loadMoreBtnEl.addEventListener('click', onLoadMore);
-refs.inputEl.addEventListener('input', onInputClear);
+
+
 
 let photosPerPage = 40;
 let pageNum = 1;
+
 
 function fetchUrl() {
   return `https://pixabay.com/api/?key=34293251-581ef66c68ad7ebfa4511ff3d&q=${refs.inputEl.value.trim()}&image-type=photo&orientation=horizontal&safesearch=true&per_page=${photosPerPage}&page=${pageNum}`;
@@ -54,10 +54,15 @@ async function onFormSubmit(event) {
         refs.loadMoreBtnEl.classList.add('visually-hidden');
         clearGallery();
       } else {
-        refs.galleryEl.insertAdjacentHTML(
-          'beforeend',
-          renderPhotoCard(response.data.hits)
-        );
+        if (pageNum === 1 && event.submitter !== refs.loadMoreBtnEl) {
+          clearGallery();
+          refs.galleryEl.innerHTML = renderPhotoCard(response.data.hits);
+        } else {
+          refs.galleryEl.insertAdjacentHTML(
+            'beforeend',
+            renderPhotoCard(response.data.hits)
+          );
+        }
 
         slb.refresh();
 
@@ -70,6 +75,7 @@ async function onFormSubmit(event) {
             `Hooray! We found the ${response.data.totalHits} images of ${refs.inputEl.value}`
           );
         }
+        slb.refresh();
 
         noMorePhotos(response);
       }
@@ -88,14 +94,6 @@ function clearGallery() {
   refs.galleryEl.innerHTML = '';
 }
 
-function onInputClear() {
-  if (refs.inputEl.value == '' || refs.inputEl.value.length == 0) {
-    clearGallery();
-    refs.loadMoreBtnEl.classList.add('visually-hidden');
-    pageNum = 1;
-  }
-}
-
 function noMorePhotos(response) {
   if (response.data.totalHits / (pageNum * photosPerPage) < 1 && pageNum > 1) {
     refs.loadMoreBtnEl.classList.add('visually-hidden');
@@ -103,8 +101,4 @@ function noMorePhotos(response) {
       "We're sorry, but you've reached the end of search results."
     );
   }
-}
-
-function onImageClick(event) {
-  event.preventDefault();
 }
