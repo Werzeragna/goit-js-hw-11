@@ -25,11 +25,8 @@ const refs = {
 refs.searchForm.addEventListener('submit', onFormSubmit);
 refs.loadMoreBtnEl.addEventListener('click', onLoadMore);
 
-
-
 let photosPerPage = 40;
 let pageNum = 1;
-
 
 function fetchUrl() {
   return `https://pixabay.com/api/?key=34293251-581ef66c68ad7ebfa4511ff3d&q=${refs.inputEl.value.trim()}&image-type=photo&orientation=horizontal&safesearch=true&per_page=${photosPerPage}&page=${pageNum}`;
